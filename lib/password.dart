@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-String calculate(String name, String masterPasswd) {
+String calculate({String name = "", String masterPasswd = "", int passwdLength = 16}) {
   String ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%^&*", passwd = "";
-  int masterPasswdSize = masterPasswd.length, nameSize = name.length, n = ch.length, passwdLength = 16;
+  int masterPasswdSize = masterPasswd.length, nameSize = name.length, n = ch.length;
   name = name.toLowerCase();
   masterPasswd = "_${masterPasswd}_";
   name = "_${name}_";

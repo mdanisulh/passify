@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   late final TextEditingController _name;
   late final TextEditingController _masterPasswd;
+  late final TextEditingController _passwdLength;
 
   bool _passwordVisible = false;
   bool errorPasswd = false;
@@ -27,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     _name = TextEditingController();
     _masterPasswd = TextEditingController();
+    _passwdLength = TextEditingController();
     checkMasterPasswd();
     super.initState();
   }
@@ -169,6 +171,35 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+            const SizedBox(height: 30),
+            Center(
+              child: SizedBox(
+                width: 300,
+                child: TextField(
+                  controller: _passwdLength,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: 'Default=16',
+                    label: Text(
+                      "Password Length",
+                      style: TextStyle(color: colorName),
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: colorName, width: 2),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: colorName, width: 3),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(15),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
             Center(
               child: ElevatedButton(
@@ -195,17 +226,31 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> check() async {
     final SharedPreferences prefs = await _prefs;
-    var passwdSHA = sha512.convert(utf8.encode(_masterPasswd.text));
+    var masterPasswd = _masterPasswd.text.trim();
+    var name = _name.text.trim();
+    var passwdSHA = sha512.convert(utf8.encode(masterPasswd));
     final String? masterSHA = prefs.getString('masterSHA');
-    if (_name.text.isEmpty) {
+    if (name.isEmpty) {
       errorName = true;
       setState(() {});
     } else if (passwdSHA.toString() == masterSHA) {
       errorPasswd = false;
       errorName = false;
-      await Clipboard.setData(ClipboardData(text: calculate(_name.text, _masterPasswd.text))).then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password copied to clipboard successfully!')));
-      });
+      String passwd;
+      if ((_passwdLength.text.isNotEmpty && int.parse(_passwdLength.text) >= 8 && int.parse(_passwdLength.text) <= 32) || _passwdLength.text.isEmpty) {
+        if (_passwdLength.text.isNotEmpty) {
+          passwd = calculate(name: name, masterPasswd: masterPasswd, passwdLength: int.parse(_passwdLength.text));
+        } else {
+          passwd = calculate(name: name, masterPasswd: masterPasswd);
+        }
+        await Clipboard.setData(ClipboardData(text: passwd)).then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password copied to clipboard successfully!')));
+        });
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password length must be between 8 and 32!')));
+        }
+      }
       setState(() {});
     } else {
       errorPasswd = true;
@@ -257,7 +302,7 @@ class _HomePageState extends State<HomePage> {
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(
                         hintText: "Confirm Master Passphrase",
-                        helperText: "Passwords must match and not be empty!",
+                        helperText: "Password must have atleast 8 characters!",
                         helperStyle: TextStyle(color: Colors.white70),
                       ),
                     ),
@@ -268,17 +313,19 @@ class _HomePageState extends State<HomePage> {
                 TextButton(
                   child: const Text('OK'),
                   onPressed: () async {
-                    if (textFieldController.text == confirmController.text && confirmController.text.isNotEmpty) {
-                      var passwdSHA = sha512.convert(utf8.encode(textFieldController.text));
+                    var text = textFieldController.text.trim();
+                    var confirm = confirmController.text.trim();
+                    if (text == confirm && text.length >= 8) {
+                      var passwdSHA = sha512.convert(utf8.encode(text));
                       await prefs.setString('masterSHA', passwdSHA.toString());
                       if (mounted) {
                         Navigator.pop(context);
                       }
                     } else {
-                      if (textFieldController.text != confirmController.text) {
+                      if (text != confirm) {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords does not match!')));
-                      } else if (textFieldController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password must have at least one character!')));
+                      } else if (text.length < 8) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password must have at least 8 characters!')));
                       }
                     }
                   },
