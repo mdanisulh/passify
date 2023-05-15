@@ -178,21 +178,21 @@ class _HomePageState extends State<HomePage> {
                 child: TextField(
                   controller: _passwdLength,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Default=16',
                     label: Text(
                       "Password Length",
-                      style: TextStyle(color: colorName),
+                      style: TextStyle(color: Colors.white70),
                     ),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide(color: colorName, width: 2),
-                      borderRadius: const BorderRadius.all(
+                      borderSide: BorderSide(color: Colors.white70, width: 2),
+                      borderRadius: BorderRadius.all(
                         Radius.circular(10),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: colorName, width: 3),
-                      borderRadius: const BorderRadius.all(
+                      borderSide: BorderSide(color: Colors.white70, width: 3),
+                      borderRadius: BorderRadius.all(
                         Radius.circular(15),
                       ),
                     ),
