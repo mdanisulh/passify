@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.mdanisulhaque.password_generator">
+    package="study.mdanisulh.passify">
    <application
         android:label="Passwords"
         android:name="${applicationName}"
