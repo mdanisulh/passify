@@ -1,3 +1,3 @@
-# password_generator
+# passify
 
 A new Flutter project.

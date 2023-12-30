@@ -11,12 +11,16 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Passwords",
+      title: "Passify",
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.white70,
         brightness: Brightness.dark,
+        snackBarTheme: const SnackBarThemeData(
+          backgroundColor: Colors.white,
+          contentTextStyle: TextStyle(color: Colors.black),
+        ),
       ),
       home: const HomePage(),
     );

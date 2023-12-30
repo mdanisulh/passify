@@ -1,4 +1,4 @@
-package com.github.mdanisulhaque.password_generator
+package study.mdanisulh.passify
 
 import io.flutter.embedding.android.FlutterActivity
 
