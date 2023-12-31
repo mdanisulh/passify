@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:passify/password.dart';
 import 'package:passify/change_password_dialog.dart';
-import 'package:passify/utils/password_text_field.dart';
-import 'package:passify/utils/salt_text_field.dart';
+import 'package:passify/utils/custom_text_field.dart';
 import 'package:passify/utils/show_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,24 +18,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final TextEditingController _salt;
-  late final TextEditingController _masterPasswd;
-  late final TextEditingController _passwdLength;
+  late final TextEditingController _masterPassword;
+  late final TextEditingController _passwordLength;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
     _salt = TextEditingController();
-    _masterPasswd = TextEditingController();
-    _passwdLength = TextEditingController();
-    checkMasterPasswd();
+    _masterPassword = TextEditingController();
+    _passwordLength = TextEditingController();
+    checkMasterPassword();
     super.initState();
   }
 
   @override
   void dispose() {
     _salt.dispose();
-    _masterPasswd.dispose();
-    _passwdLength.dispose();
+    _masterPassword.dispose();
+    _passwordLength.dispose();
     super.dispose();
   }
 
@@ -51,7 +50,7 @@ class _HomePageState extends State<HomePage> {
             onSelected: (value) async {
               switch (value) {
                 case 'Change Master Password':
-                  checkMasterPasswd(change: true);
+                  checkMasterPassword(change: true);
               }
             },
             itemBuilder: (context) {
@@ -78,37 +77,32 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SaltTextField(salt: _salt),
-            const SizedBox(height: 30),
             Padding(
-              padding: const EdgeInsets.all(30),
-              child: PasswordTextField(masterPassword: _masterPasswd, hintText: 'Master Password', labelText: 'Enter your master password'),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: CustomTextField(
+                controller: _salt,
+                hintText: 'Enter the website/app name',
+                labelText: 'Website/App Name',
+              ),
             ),
             const SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: TextField(
-                controller: _passwdLength,
+              child: CustomTextField(
+                controller: _masterPassword,
+                hintText: 'Enter your master password',
+                labelText: 'Master Password',
+                isPassword: true,
+              ),
+            ),
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: CustomTextField(
+                controller: _passwordLength,
+                hintText: 'Default = 16',
+                labelText: 'Password Length (4-32)',
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: 'Default=16',
-                  label: Text(
-                    'Password Length (8-32)',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white70, width: 2),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white70, width: 3),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(15),
-                    ),
-                  ),
-                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -116,7 +110,7 @@ class _HomePageState extends State<HomePage> {
               child: ElevatedButton(
                 onPressed: check,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white38,
+                  backgroundColor: Colors.white70,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
                       Radius.circular(25),
@@ -137,34 +131,32 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> check() async {
     final SharedPreferences prefs = await _prefs;
-    var masterPasswd = _masterPasswd.text.trim();
-    var name = _salt.text.trim();
-    var passwdSHA = sha512.convert(utf8.encode(masterPasswd));
+    final String masterPassword = _masterPassword.text.trim();
+    final String salt = _salt.text.trim();
+    final String passwordSHA = sha512.convert(utf8.encode('passify:$masterPassword')).toString();
     final String? masterSHA = prefs.getString('masterSHA');
-    if (name.isEmpty && context.mounted) {
+    if (salt.isEmpty && context.mounted) {
       showSnackbar(context, 'Name must conatain at least one character!');
-    } else if (passwdSHA.toString() == masterSHA) {
-      String passwd;
-      if ((_passwdLength.text.isNotEmpty && int.parse(_passwdLength.text) >= 8 && int.parse(_passwdLength.text) <= 32) || _passwdLength.text.isEmpty) {
-        if (_passwdLength.text.isNotEmpty) {
-          passwd = generate(salt: name, masterPassword: masterPasswd, passwordLength: int.parse(_passwdLength.text));
+    } else if (passwordSHA == masterSHA) {
+      String password;
+      if ((_passwordLength.text.isNotEmpty && int.parse(_passwordLength.text) >= 4 && int.parse(_passwordLength.text) <= 32) || _passwordLength.text.isEmpty) {
+        if (_passwordLength.text.isNotEmpty) {
+          password = generate(salt: salt, masterPassword: masterPassword, passwordLength: int.parse(_passwordLength.text));
         } else {
-          passwd = generate(salt: name, masterPassword: masterPasswd);
+          password = generate(salt: salt, masterPassword: masterPassword);
         }
-        await Clipboard.setData(ClipboardData(text: passwd)).then((_) {
+        await Clipboard.setData(ClipboardData(text: password)).then((_) {
           showSnackbar(context, 'Password copied to clipboard successfully!');
         });
-      } else {
-        if (context.mounted) {
-          showSnackbar(context, 'Password length must be between 8 and 32!');
-        }
+      } else if (context.mounted) {
+        showSnackbar(context, 'Password length must be between 4 and 32!');
       }
     } else if (context.mounted) {
       showSnackbar(context, 'Incorrect Master Password!');
     }
   }
 
-  Future<void> checkMasterPasswd({bool change = false}) async {
+  Future<void> checkMasterPassword({bool change = false}) async {
     final SharedPreferences prefs = await _prefs;
     final String? masterSHA = prefs.getString('masterSHA');
     if ((masterSHA == null || change) && context.mounted) {
