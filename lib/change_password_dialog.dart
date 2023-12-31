@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:passify/utils/password_text_field.dart';
+import 'package:passify/utils/custom_text_field.dart';
 import 'package:passify/utils/show_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,9 +24,17 @@ class ChangePasswordDialog extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            PasswordTextField(masterPassword: passwordController, hintText: 'New Master Passphrase'),
+            CustomTextField(
+              controller: passwordController,
+              hintText: 'New Master Passphrase',
+              isPassword: true,
+            ),
             const SizedBox(height: 20),
-            PasswordTextField(masterPassword: confirmPasswordController, hintText: 'Confirm Master Passphrase'),
+            CustomTextField(
+              controller: confirmPasswordController,
+              hintText: 'Confirm Master Passphrase',
+              isPassword: true,
+            ),
           ],
         ),
       ),
@@ -34,16 +42,16 @@ class ChangePasswordDialog extends StatelessWidget {
         TextButton(
           child: const Text('OK'),
           onPressed: () async {
-            var text = passwordController.text.trim();
-            var confirm = confirmPasswordController.text.trim();
-            if (text == confirm && text.length >= 8) {
-              var passwdSHA = sha512.convert(utf8.encode(text));
-              await prefs.setString('masterSHA', passwdSHA.toString());
+            final String password = passwordController.text.trim();
+            final String confirmPassword = confirmPasswordController.text.trim();
+            if (password == confirmPassword && password.length >= 8) {
+              final String passwordSHA = sha512.convert(utf8.encode('passify:$password')).toString();
+              await prefs.setString('masterSHA', passwordSHA);
               if (context.mounted) {
                 Navigator.pop(context);
               }
             } else {
-              if (text != confirm) {
+              if (password != confirmPassword) {
                 showSnackbar(context, 'Passwords does not match!');
               } else {
                 showSnackbar(context, 'Password must have at least 8 characters!');
