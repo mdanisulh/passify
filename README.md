@@ -5,8 +5,8 @@
     <img src="images/logo.png" alt="Logo" width="250" height="250">
   </a>
 
-<a href="https://mdanisulh.github.io/passify"><h1><strong>Passify</strong></h1>
-  </a>
+<h1><a href="https://mdanisulh.github.io/passify"><strong>Passify</strong>
+  </a></h1>
   <p align="center">
     A password generator and manager
     <br />
@@ -24,8 +24,8 @@ Passify takes a master password and a website name as input and generates a hash
 
 ## Screenshots
 <p float="center" align="center">
-  <img src="images/screenshot1.jpg" width="300" height="650" title="Home Screen" style="margin-right: 20px;" />
-  <img src="images/screenshot2.jpg" width="300" height="650" title="Change Password Dialog Box" style="margin-left: 20px;" /> 
+  <img src="images/screenshot1.jpg" width="300" height="650" title="Home Screen" />
+  <img src="images/screenshot2.jpg" width="300" height="650" title="Change Password Dialog Box" /> 
 </p>
 
 ## Features
@@ -59,7 +59,7 @@ You can access the web app [here](https://mdanisulh.github.io/passify).
 
 ### Chrome Extension
 Passify is not available on the Chrome Web Store. To install it you have to download the zip file and load it as an unpacked extension. You can follow the steps below to do so.
-1. Download and extract the zip file from [here]().
+1. Download and extract the zip file from [here](https://github.com/mdanisulh/passify/releases/download/v1.0.0/passify-chrome-extension.zip).
 2. Open Google Chrome and go to `chrome://extensions/`.
 3. Enable Developer Mode.
 4. Click on `Load unpacked` and select the extracted folder.
