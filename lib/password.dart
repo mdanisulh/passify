@@ -1,16 +1,30 @@
 import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
+import 'package:cryptography/cryptography.dart';
 
-String generate({String salt = "", String masterPassword = "", int passwordLength = 16}) {
+Future<List<int>> argon2id(String masterPassword, String salt) async {
+  final algorithm = Argon2id(
+    parallelism: 1,
+    memory: 5000,
+    iterations: 1,
+    hashLength: 128,
+  );
+  final newSecretKey = await algorithm.deriveKey(
+    secretKey: SecretKey(utf8.encode(masterPassword)),
+    nonce: utf8.encode(salt),
+  );
+  final newSecretKeyBytes = await newSecretKey.extractBytes();
+  return newSecretKeyBytes;
+}
+
+Future<String> generate({String salt = "", String masterPassword = "", int passwordLength = 16}) async {
   const String characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#\$%^&*()';
-  String saltedPassword = '${salt.toLowerCase().trim()}:$masterPassword';
-  String saltedPasswordSHA = sha512.convert(utf8.encode(saltedPassword)).toString();
+  List<int> saltedPasswordSHA = await argon2id(masterPassword, salt.toLowerCase().trim());
   String password = '';
   for (int i = 0; i < passwordLength; i++) {
     int asciiSum = 0;
     for (int j = 0; j < saltedPasswordSHA.length ~/ passwordLength; j++) {
-      asciiSum += saltedPasswordSHA.codeUnitAt(i * (saltedPasswordSHA.length ~/ passwordLength) + j);
+      asciiSum += saltedPasswordSHA[i * (saltedPasswordSHA.length ~/ passwordLength) + j];
     }
     password += characters[asciiSum % characters.length];
   }

@@ -23,31 +23,34 @@ class _CustomTextFieldState extends State<CustomTextField> {
             Radius.circular(borderRadius),
           ),
         );
-    return TextField(
-      controller: widget.textController,
-      obscureText: !_passwordVisible && widget.isPassword,
-      enableSuggestions: false,
-      autocorrect: false,
-      keyboardType: widget.keyboardType,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        labelText: widget.labelText,
-        labelStyle: const TextStyle(color: Colors.white70),
-        border: border(10),
-        focusedBorder: border(15),
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  _passwordVisible ? Icons.visibility : Icons.visibility_off,
-                  color: Colors.white70,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _passwordVisible = !_passwordVisible;
-                  });
-                },
-              )
-            : null,
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: TextField(
+        controller: widget.textController,
+        obscureText: !_passwordVisible && widget.isPassword,
+        enableSuggestions: false,
+        autocorrect: false,
+        keyboardType: widget.keyboardType,
+        decoration: InputDecoration(
+          hintText: widget.hintText,
+          labelText: widget.labelText,
+          labelStyle: const TextStyle(color: Colors.white70),
+          border: border(10),
+          focusedBorder: border(15),
+          suffixIcon: widget.isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.white70,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _passwordVisible = !_passwordVisible;
+                    });
+                  },
+                )
+              : null,
+        ),
       ),
     );
   }

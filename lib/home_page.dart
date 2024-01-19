@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:passify/password.dart';
@@ -133,7 +130,7 @@ class _HomePageState extends State<HomePage> {
     final SharedPreferences prefs = await _prefs;
     final String masterPassword = _masterPassword.text.trim();
     final String salt = _salt.text.trim();
-    final String passwordSHA = sha512.convert(utf8.encode('passify:$masterPassword')).toString();
+    final String passwordSHA = (await argon2id(masterPassword, 'passify')).toString();
     final String? masterSHA = prefs.getString('masterSHA');
     if (salt.isEmpty && context.mounted) {
       showSnackbar(context, 'Name must conatain at least one character!');
@@ -141,9 +138,9 @@ class _HomePageState extends State<HomePage> {
       String password;
       if ((_passwordLength.text.isNotEmpty && int.parse(_passwordLength.text) >= 4 && int.parse(_passwordLength.text) <= 32) || _passwordLength.text.isEmpty) {
         if (_passwordLength.text.isNotEmpty) {
-          password = generate(salt: salt, masterPassword: masterPassword, passwordLength: int.parse(_passwordLength.text));
+          password = await generate(salt: salt, masterPassword: masterPassword, passwordLength: int.parse(_passwordLength.text));
         } else {
-          password = generate(salt: salt, masterPassword: masterPassword);
+          password = await generate(salt: salt, masterPassword: masterPassword);
         }
         await Clipboard.setData(ClipboardData(text: password)).then((_) {
           showSnackbar(context, 'Password copied to clipboard successfully!');
