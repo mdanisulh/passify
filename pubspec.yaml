@@ -7,7 +7,7 @@ environment:
   sdk: '>=2.19.6 <3.0.0'
 
 dependencies:
-  crypto: ^3.0.3
+  cryptography: ^2.7.0
   flutter:
     sdk: flutter
   shared_preferences: ^2.1.1

@@ -1,7 +1,5 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:passify/password.dart';
 import 'package:passify/utils/custom_text_field.dart';
 import 'package:passify/utils/show_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,13 +24,13 @@ class ChangePasswordDialog extends StatelessWidget {
           children: [
             CustomTextField(
               controller: passwordController,
-              hintText: 'New Master Passphrase',
+              hintText: 'New Master Password',
               isPassword: true,
             ),
             const SizedBox(height: 20),
             CustomTextField(
               controller: confirmPasswordController,
-              hintText: 'Confirm Master Passphrase',
+              hintText: 'Confirm Master Password',
               isPassword: true,
             ),
           ],
@@ -45,7 +43,7 @@ class ChangePasswordDialog extends StatelessWidget {
             final String password = passwordController.text.trim();
             final String confirmPassword = confirmPasswordController.text.trim();
             if (password == confirmPassword && password.length >= 8) {
-              final String passwordSHA = sha512.convert(utf8.encode('passify:$password')).toString();
+              final String passwordSHA = (await argon2id(password, 'passify')).toString();
               await prefs.setString('masterSHA', passwordSHA);
               if (context.mounted) {
                 Navigator.pop(context);
