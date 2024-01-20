@@ -1,2 +1,3 @@
 docs/** linguist-detectable=false
-chrome-extension/** linguist-detectable=false
+windows/** linguist-detectable=false
+linux/** linguist-detectable=false
